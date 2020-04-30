@@ -110,7 +110,7 @@ app.post('/api/exercise/add', (req, resp) => {
        if (!usr) {
          resp.json( { error: "Unknown user" } )
        } else {
-         resp.json( { username: usr.username, _id: usr._id, description, duration: parseInt(duration), date: moment(date).format("ddd MMM D YYYY") } );
+         resp.json( { username: usr.username, description, duration: parseInt(duration), _id: usr._id, date: moment(date).format("ddd MMM D YYYY") } );
        }
     });
   } else {
@@ -127,10 +127,13 @@ app.get('/api/exercise/log', (req, resp) => {
          let log = usr.activity
            .filter((itm) => !(from) | moment(itm.date).isAfter(from) )
            .filter((itm) => !(to) | moment(itm.date).isBefore(to) )
-           .filter((itm, idx) => !(limit) || idx < limit );
+           .filter((itm, idx) => !(limit) || idx < limit )
+           .map((itm) => { 
+             return {description: itm.description, duration: itm.duration, date: moment(itm.date).format("ddd MMM D YYYY") }
+           });
          resp.json( { 
-           username: usr.username, 
            _id: usr._id,
+           username: usr.username, 
            count: log.length,
            log
          } );
