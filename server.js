@@ -111,7 +111,7 @@ app.post('/api/exercise/add', (req, resp) => {
        if (!usr) {
          resp.json( { error: "Unknown user" } )
        } else {
-         resp.json( usr )
+         resp.json( { username: usr.username, _id: usr._id, description, duration, date} );
        }
     });
   } else {
@@ -119,9 +119,21 @@ app.post('/api/exercise/add', (req, resp) => {
   }
 });
 
-// app.get('/api/exercise/log', (req, resp) => {
-  
-// });
+app.get('/api/exercise/log', (req, resp) => {
+  const { userId, from, to, limit } = req.query;
+  findUserById(userId,  function(err, usr){
+       if (!usr) {
+         resp.json( { error: "Unknown user" } )
+       } else {
+         resp.json( { 
+           username: usr.username, 
+           _id: usr._id,
+           count: usr.activity.length,
+           log: usr.activity
+         } );
+       }
+  });
+});
 
 
 /*
