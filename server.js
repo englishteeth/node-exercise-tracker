@@ -98,6 +98,8 @@ app.get('/api/exercise/users', (req, resp) => {
 });
 
 app.post('/api/exercise/add', (req, resp) => {
+  console.log("add called");
+  console.log(req.body);
   const { userId, description, duration, date : ds } = req.body;
   let response = {}, errors = [];
   if (!description) errors.push("Must provide a description");
@@ -110,7 +112,9 @@ app.post('/api/exercise/add', (req, resp) => {
        if (!usr) {
          resp.json( { error: "Unknown user" } )
        } else {
-         resp.json( { username: usr.username, description, duration: parseInt(duration), _id: usr._id, date: moment(date).format("ddd MMM D YYYY") } );
+         let result = { username: usr.username, description, duration: parseInt(duration), _id: usr._id, date: moment(date).format("ddd MMM DD YYYY") };
+         console.log( result );
+         resp.json( result );
        }
     });
   } else {
@@ -129,7 +133,7 @@ app.get('/api/exercise/log', (req, resp) => {
            .filter((itm) => !(to) | moment(itm.date).isBefore(to) )
            .filter((itm, idx) => !(limit) || idx < limit )
            .map((itm) => { 
-             return {description: itm.description, duration: itm.duration, date: moment(itm.date).format("ddd MMM D YYYY") }
+             return {description: itm.description, duration: itm.duration, date: moment(itm.date).format("ddd MMM DD YYYY") }
            });
          resp.json( { 
            _id: usr._id,
