@@ -22,7 +22,7 @@ mongoose.connect(process.env.DB_URI, function(err) {
 const exerciseUserSchema = mongoose.Schema({
   _id: { 'type': String, 'default': shortid.generate },
   username: { 'type': String, 'required': true },
-  activity: [ Object ]
+  activity: [ { description: String, duration: Number, date: Date} ]
 });
 const ExerciseUser = mongoose.model("ExerciseUser", exerciseUserSchema);
 
@@ -81,10 +81,8 @@ app.get('/', (req, res) => {
 app.post('/api/exercise/new-user', (req, resp) => {
   const { username } = req.body;
   findUser(username, (err, usr) => {
-    console.log("found " + usr);
     if (usr == null) {
       createUser(username, (err, usr) =>  {
-        console.log(usr);
         resp.json({ username: username, _id: usr._id }); 
       });
     } else {
@@ -103,16 +101,16 @@ app.post('/api/exercise/add', (req, resp) => {
   const { userId, description, duration, date : ds } = req.body;
   let response = {}, errors = [];
   if (!description) errors.push("Must provide a description");
-  if (!duration || duration <= 0 ) errors.push("Must provide a valid duration");
+  if (!duration || !/^[1-9][0-9]*$/.test(duration) ) errors.push("Must provide a valid duration");
   let date = (!ds) ? new Date() : new Date(ds); 
   if (date.toString() === "Invalid Date") errors.push("If you provide a date it must be a valid date");
   if (!userId) errors.push("Must provide a userId");
   if (errors.length === 0) {
-    updateExercise(userId, {description, duration, date}, function(err, usr){
+    updateExercise(userId, {description, duration: parseInt(duration), date}, function(err, usr){
        if (!usr) {
          resp.json( { error: "Unknown user" } )
        } else {
-         resp.json( { username: usr.username, _id: usr._id, description, duration, date} );
+         resp.json( { username: usr.username, _id: usr._id, description, duration: parseInt(duration), date: moment(date).format("ddd MMM D YYYY") } );
        }
     });
   } else {
