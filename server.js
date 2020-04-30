@@ -8,6 +8,7 @@ const cors = require('cors');
 
 const bodyParser = require('body-parser');
 const shortid = require('shortid');
+const moment = require('moment');
 
 const app = express();
 
@@ -125,11 +126,15 @@ app.get('/api/exercise/log', (req, resp) => {
        if (!usr) {
          resp.json( { error: "Unknown user" } )
        } else {
+         let log = usr.activity
+           .filter((itm) => !(from) | moment(itm.date).isAfter(from) )
+           .filter((itm) => !(to) | moment(itm.date).isBefore(to) )
+           .filter((itm, idx) => !(limit) || idx < limit );
          resp.json( { 
            username: usr.username, 
            _id: usr._id,
-           count: usr.activity.length,
-           log: usr.activity
+           count: log.length,
+           log
          } );
        }
   });
